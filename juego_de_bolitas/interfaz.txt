@@ -1,0 +1,216 @@
+import controlP5.*;
+import ddf.minim.*;
+Minim sonido;
+AudioPlayer musica;
+
+// A ver si asi se entiende algo xd
+int estado = 0; // Variable para controlar el estado del juego
+int volumenMaximo = 10;
+int volumenActual = 5;
+boolean ratonFuePresionado = false; // Variable para evitar múltiples clics en un botón
+
+
+ControlP5 cp5;
+PFont fuente;
+
+void setup() {
+  size(800, 600);
+  background(0);
+
+  // Cargar la fuente
+  fuente = createFont("Arial", 24);
+  
+  // Inicializar la biblioteca Minim
+  sonido = new Minim(this);
+  musica = sonido.loadFile("Game.mp3"); // Reemplaza "nombre_de_tu_archivo_de_musica.mp3" con el nombre de tu archivo de música
+  sonido.debugOn();
+  // Inicializar la biblioteca ControlP5
+  cp5 = new ControlP5(this);
+
+  // Agregar botones al menú
+  cp5.addButton("Jugar")
+     .setPosition(300, 150)
+     .setSize(200, 50)
+     .setFont(fuente)
+     .setLabel("Jugar")
+     .setColorBackground(color(255))
+     .setColorForeground(color(255))
+     .setColorActive(color(200))
+     .getCaptionLabel().setColor(color(0)); // Cambiar el color del texto a negro
+
+  cp5.addButton("Multijugador")
+     .setPosition(300, 220)
+     .setSize(200, 50)
+     .setFont(fuente)
+     .setLabel("Multijugador")
+     .setColorBackground(color(255))
+     .setColorForeground(color(255))
+     .setColorActive(color(200))
+     .getCaptionLabel().setColor(color(0)); // Cambiar el color del texto a negro
+
+  cp5.addButton("Entrenamiento")
+     .setPosition(300, 290)
+     .setSize(200, 50)
+     .setFont(fuente)
+     .setLabel("Entrenamiento")
+     .setColorBackground(color(255))
+     .setColorForeground(color(255))
+     .setColorActive(color(200))
+     .getCaptionLabel().setColor(color(0)); // Cambiar el color del texto a negro
+
+  cp5.addButton("Configuracion")
+     .setPosition(300, 360)
+     .setSize(200, 50)
+     .setFont(fuente)
+     .setLabel("Configuración")
+     .setColorBackground(color(255))
+     .setColorForeground(color(255))
+     .setColorActive(color(200))
+     .getCaptionLabel().setColor(color(0)); // Cambiar el color del texto a negro
+
+  cp5.addButton("Atras")
+     .setPosition(20, 20)
+     .setSize(100, 40)
+     .setFont(fuente)
+     .setLabel("Atrás")
+     .setColorBackground(color(255))
+     .setColorForeground(color(255))
+     .setColorActive(color(200))
+     .getCaptionLabel().setColor(color(0)); // Cambiar el color del texto a negro
+
+  // Esconder el botón "Atrás" inicialmente
+  cp5.getController("Atras").hide();
+  musica.loop();
+}
+
+void draw() {
+  switch (estado) {
+    case 0:
+      dibujarMenu();
+      break;
+    case 1:
+      dibujarJugar();
+      break;
+    case 2:
+      dibujarMultijugador();
+      break;
+    case 3:
+      dibujarEntrenamiento();
+      break;
+    case 4:
+      dibujarConfiguracion();
+      break;
+  }
+  // Reproducir la música en bucle en todas las pantallas
+  musica.loop();
+}
+
+// ...
+
+void dibujarMenu() {
+  background(0);
+  // Dibujar los círculos en el fondo
+  for (int i = 0; i < 10; i++) {
+    float x = random(width);
+    float y = random(height);
+    float tamano = random(30, 100);
+    int col = color(random(255), random(255), random(255));
+    fill(col);
+    ellipse(x, y, tamano, tamano);
+  }
+
+  // Ocultar el botón "Atrás" en el menú principal
+  cp5.getController("Atras").hide();
+}
+
+// ...
+
+
+
+void dibujarJugar() {
+  background(0, 100, 0);
+  // Dibujar la jugabilidad para el estado "Jugar" aquí
+  borrarBotones();
+}
+
+void dibujarMultijugador() {
+  background(0, 0, 100);
+  // Dibujar la jugabilidad para el estado "Multijugador" aquí
+  borrarBotones();
+}
+
+void dibujarEntrenamiento() {
+  background(100, 0, 0);
+  // Dibujar la jugabilidad para el estado "Entrenamiento" aquí
+  borrarBotones();
+}
+
+void dibujarConfiguracion() {
+  background(100);
+  fill(255);
+  textSize(20);
+  text("Volumen: " + volumenActual, width / 2 - 60, height / 2);
+  borrarBotones();
+
+}
+
+void borrarBotones() {
+  // Borrar los botones del menú
+  cp5.getController("Jugar").hide();
+  cp5.getController("Multijugador").hide();
+  cp5.getController("Entrenamiento").hide();
+  cp5.getController("Configuracion").hide();
+
+  // Mostrar el botón "Atrás" solo si no estamos en el menú principal (estado 0)
+  if (estado != 0) {
+    cp5.getController("Atras").show();
+  } else {
+    cp5.getController("Atras").hide();
+  }
+}
+
+void controlEvent(ControlEvent event) {
+  if (ratonFuePresionado) {
+    // Evitar clics múltiples en el mismo fotograma
+    return;
+  }
+
+  if (event.isController()) {
+    String nombreBoton = event.getController().getName();
+    if (nombreBoton.equals("Jugar")) {
+      estado = 1;
+    } else if (nombreBoton.equals("Multijugador")) {
+      estado = 2;
+    } else if (nombreBoton.equals("Entrenamiento")) {
+      estado = 3;
+    } else if (nombreBoton.equals("Configuracion")) {
+      estado = 4;
+    } else if (nombreBoton.equals("Atras")) {
+      estado = 0; // Cambiar el estado al menú principal
+      // Mostrar nuevamente los botones del menú principal al regresar
+      cp5.getController("Jugar").show();
+      cp5.getController("Multijugador").show();
+      cp5.getController("Entrenamiento").show();
+      cp5.getController("Configuracion").show();
+    }
+    ratonFuePresionado = true;
+  }
+}
+
+void mouseReleased() {
+  ratonFuePresionado = false;
+}
+
+void keyPressed() {
+  if (estado == 4) {
+    if (key == '+') {
+      volumenActual = min(volumenActual + 1, volumenMaximo);
+      // Ajustar el volumen de la música
+      musica.setGain(map(volumenActual, 0, volumenMaximo, -40, 0));
+    } else if (key == '-') {
+      volumenActual = max(volumenActual - 1, 0);
+      // Ajustar el volumen de la música
+      musica.setGain(map(volumenActual, 0, volumenMaximo, -40, 0));
+    }
+  }
+}
